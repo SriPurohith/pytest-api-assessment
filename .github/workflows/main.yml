@@ -1,6 +1,6 @@
 name: API Regression Suite
 
-on: [push, pull_request] # The "Continuous" part
+on: [push, pull_request]
 
 jobs:
   test:
@@ -8,10 +8,10 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4  # Updated to v4
 
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5 # Updated to v5
         with:
           python-version: '3.11'
 
@@ -21,12 +21,12 @@ jobs:
 
       - name: Run Thread-Safe API Tests
         env:
-          API_TOKEN: ${{ secrets.API_TOKEN }} # The "Security" part
+          API_TOKEN: ${{ secrets.API_TOKEN }}
         run: |
           pytest -s --log-cli-level=INFO --html=report.html --self-contained-html
 
       - name: Upload Test Report
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4 # Updated to v4 (The fix for your error)
         with:
           name: api-test-report
           path: report.html
