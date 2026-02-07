@@ -6,11 +6,9 @@ import pytest
 import schemas
 from hamcrest import assert_that, contains_string, is_
 
-'''
-TODO: Finish this test by...
-1) Troubleshooting and fixing the test failure
-The purpose of this test is to validate the response matches the expected schema defined in schemas.py
-'''
+# ---------------------------------------------------------
+# TEST CASE: test pet schema
+# ---------------------------------------------------------
 def test_pet_schema():
     test_endpoint = "/pets/1"
 
@@ -21,13 +19,10 @@ def test_pet_schema():
     # Validate the response schema against the defined schema in schemas.py
     validate(instance=response.json(), schema=schemas.pet)
 
-'''
-TODO: Finish this test by...
-1) Extending the parameterization to include all available statuses
-2) Validate the appropriate response code
-3) Validate the 'status' property in the response is equal to the expected status
-4) Validate the schema for each object in the response
-'''
+
+# ---------------------------------------------------------
+# TEST CASE: test status code (200) and response content
+# ---------------------------------------------------------
 @pytest.mark.parametrize("status", [
     "available", #available status
     "pending", #pending status
@@ -65,11 +60,10 @@ def test_find_by_status_200(status):
         #Comparing with the defined schema in schemas.py
         validate(instance=response_data[0], schema=schemas.pet)
 
-'''
-TODO: Finish this test by...
-1) Testing and validating the appropriate 404 response for /pets/{pet_id}
-2) Parameterizing the test for any edge cases
-'''
+
+# ---------------------------------------------------------
+# TEST CASE: test status code (404) cases for GET by pet_id
+# ---------------------------------------------------------
 @pytest.mark.parametrize("pet_id", [
     # --- Standard 404s ---
     999999, "-1", "abc", 
@@ -84,6 +78,7 @@ TODO: Finish this test by...
     #--- Valid but Non-Existent IDs ---
     5555
 ])
+
 def test_get_by_id_404(pet_id):
     test_endpoint = f"/pets/{pet_id}"
     payload = api_helpers.get_api_data(test_endpoint)
@@ -91,14 +86,9 @@ def test_get_by_id_404(pet_id):
     # Validating status code is 404 for non-existent (NOT FOUND) pet IDs
     assert payload.status_code == 404
 
-    # Step 2: Only try to parse JSON if the response actually IS JSON
+    # Trying to parse json if the response actually is json
     if "application/json" in payload.headers.get("Content-Type", ""):
         payload_data = payload.json()
-        
-        # Step 3: Use 'in' to handle the long descriptive error message
-        # This makes the test pass whether the message is short or long
         assert "not found" in payload_data.get("message", "").lower()
     else:
-        # If it's an HTML response (like for -1 or abc), the 404 assertion 
-        # above is enough to prove the test passed.
         print(f"Verified: ID {pet_id} returned a 404 HTML page.")
