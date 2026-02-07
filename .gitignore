@@ -3,5 +3,6 @@ __pycache__
 test_scratch.py
 pet_scratch.py
 store_scratch.py
-report.html
+*.html
 style.css
+assessment-env/

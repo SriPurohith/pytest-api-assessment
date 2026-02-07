@@ -6,7 +6,7 @@ pet = {
             "type": "integer"
         },
         "name": {
-            "type": "integer"
+            "type": "string"
         },
         "type": {
             "type": "string",
@@ -17,4 +17,24 @@ pet = {
             "enum": ["available", "sold", "pending"]
         },
     }
+}
+
+patch_order_response = {
+    "type": "object",
+    "properties": {
+        "message": {
+            "type": "string"
+        },
+        "id": {
+            "type": "string"
+        },        
+        "pet_id": {
+            "type": "integer"
+        },   
+        "status": {
+            "type": "string"
+        }
+    },
+    "required": ["message"],            # Only require what the server actually returns
+    "additionalProperties": True        # Set to True since the server might change
 }

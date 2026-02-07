@@ -12,7 +12,22 @@ def post_api_data(endpoint, data):
     response = requests.post(f'{base_url}{endpoint}', json=data)
     return response
 
+
 # PATCH requests
 def patch_api_data(endpoint, data):
     response = requests.patch(f'{base_url}{endpoint}', json=data)
     return response
+
+'''
+import json
+
+def post_api_data(endpoint, data):
+    headers = {'Content-Type': 'application/json'}
+    # We use json.dumps() to ensure it's a clean string and pass it to 'data='
+    response = requests.post(
+        f'{base_url}{endpoint}', 
+        data=json.dumps(data), 
+        headers=headers
+    )
+    return response
+'''
