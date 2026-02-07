@@ -66,7 +66,7 @@ I've integrated **GitHub Actions** into this repo. Every time code is pushed, th
 
 ## 📝 Final Thoughts
 
-This project was a great exercise in handling the "messiness" of real APIs—like singular/plural mismatches and unexpected 405 errors. It’s built to be readable, maintainable, and most importantly, reliable.
+This project was a good exercise in handling the "messiness" of real APIs—like singular/plural mismatches and unexpected 405 errors. It’s built to be readable, maintainable, and most importantly, reliable on production env.
 
 ## 👨‍💻 Author
 

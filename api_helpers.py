@@ -5,6 +5,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+# BASE_URL is now uppercase to match usage in api_helpers and avoid confusion with the local variable in the fixture.
 BASE_URL = os.getenv("BASE_URL", "http://localhost:5000")
 
 logger = logging.getLogger(__name__)
@@ -12,13 +13,9 @@ logger.info(f"API Base URL: {BASE_URL}")
 
 # GET requests
 def get_api_data(endpoint, params={}):
-    # 1. Strip any trailing comments or whitespace from BASE_URL
+    # Cleaning up the BASE_URL in case there are comments or extra slashes in the .env
     clean_base = BASE_URL.split('#')[0].strip().rstrip('/')
-    
-    # 2. Ensure the endpoint is clean (singular /pet)
     clean_endpoint = endpoint.lstrip('/')
-    
-    # 3. Combine them
     full_url = f"{clean_base}/{clean_endpoint}"
     
     response = requests.get(full_url, params=params)

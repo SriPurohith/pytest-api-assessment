@@ -6,3 +6,4 @@ store_scratch.py
 *.html
 style.css
 assessment-env/
+.env

@@ -28,7 +28,9 @@ def test_pet_schema():
     # 2. Fetch data
     list_response = api_helpers.get_api_data(list_endpoint, params={"status": "available"})
     
-    # 3. Safety check to avoid JSONDecodeError on 404
+    # 3. Safety check to avoid JSONDecodeError on 404. 
+    # Adding a guard here because if the server sends 404s, it sends back HTML.
+    # Trying to .json() an HTML page crashes the test with a weird error.
     if list_response.status_code != 200:
         pytest.fail(f"Schema test failed: {list_endpoint} returned {list_response.status_code}")
 
@@ -100,15 +102,14 @@ def test_get_by_id_404(pet_id):
         list_endpoint = "/pet/findByStatus"
     list_response = api_helpers.get_api_data(list_endpoint, params={"status": "available"})
 
-    # 1. The primary safety check
     assert list_response.status_code < 500
 
     if list_response.status_code != 200:
-        # 2. Only try to parse JSON if the header says it is JSON
+        # only trying to parse JSON if the header says it is JSON
         if "application/json" in list_response.headers.get("Content-Type", ""):
             message = list_response.json().get("message", "").lower()
             assert any(word in message for word in ["not found", "exception", "input string", "unknown"])
         else:
-            # 3. If it's XML (like in your error), just check the raw text
+            # 3. If it's XML (like in your error), just checking the raw text
             message = list_response.text.lower()
             assert "not found" in message or "apiresponse" in message
