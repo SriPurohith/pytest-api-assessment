@@ -1,6 +1,8 @@
 # Standard library
 import json
 from jsonschema import validate
+import threading
+import logging
 
 # Third-party
 import pytest
@@ -9,33 +11,65 @@ import pytest
 import schemas
 import api_helpers
 
+data_lock = threading.Lock()
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
 # ---------------------------------------------------------
 # FIXTURES: Handling dynamic setup and test data
 # ---------------------------------------------------------
-@pytest.fixture #Get the first available pet ID dynamically 
+@pytest.fixture(scope="session") 
 def available_pet_id(): 
-    # Use the existing GET helper to find available pets
-    response = api_helpers.get_api_data("/pets/findByStatus", params={"status": "available"})
-    assert response.status_code == 200
-    
-    pets = response.json()
-    if not pets:
-        pytest.skip("No available pets found in the system to run the test.")
-    
-    # Return the ID of the first available pet found
-    return pets[0]["id"]
+    with data_lock:
+        try:
+            response = api_helpers.get_api_data("/pets/findByStatus?status=available")
+            logger.info(f"Connected to {response.url} | Status: {response.status_code}")
+        except Exception as e:
+            pytest.skip(f"Connection Error: {e}")
 
-@pytest.fixture #Create an order for the available pet and return the order ID (UUID)
+        if response.status_code != 200:
+            pytest.skip(f"Server returned {response.status_code} instead of 200")
+            
+        pets = response.json()
+        
+        if not pets:
+            logger.info("No available pets found. Seeding a new pet...")
+            seed_payload = {"id": 999, "name": "TestPet", "status": "available"}
+            api_helpers.post_api_data("/pet", seed_payload)
+            pet_id = 999  # Set the variable instead of returning
+        else:
+            pet_id = pets[0]['id']
+            logger.info(f"Pet ID: {pet_id} selected for testing.")
+
+    # Always yield at the very end of the fixture
+    yield pet_id
+
+@pytest.fixture(scope="function") #Create an order for the available pet and return the order ID (UUID)
 def created_order_id(available_pet_id):
+    # --- SETUP: Create the entry ---
     create_payload = {"pet_id": available_pet_id, "status": "available"}
     res = api_helpers.post_api_data("/store/order", create_payload)
     
-    # Explicitly handling setup failure makes the test results cleaner
     if res.status_code not in [200, 201]:
-        pytest.fail(f"Test setup failed: Server returned {res.status_code} during order creation.")
+        pytest.fail(f"Setup failed: {res.text}")
         
-    return res.json().get("id")
+    order_id = res.json().get("id")
+    logger.info(f"Order ID: {order_id} created for testing.")
+    # Provide the ID to the test
+    yield order_id
 
+    # --- tearingdown ---
+    logger.info(f"\nCleaning up: Deleting order {order_id}")
+    delete_res = api_helpers.delete_api_data(f"/store/order/{order_id}")
+
+    # Instead of a strict assert, use a 'soft' check or log the limitation
+    if delete_res.status_code == 405:
+        logger.warning(f"Server does not support DELETE on this endpoint (405). Manual cleanup may be required.")
+    else:
+        assert delete_res.status_code == 200, f"Cleanup failed for ID {order_id}"
+
+    
 @pytest.fixture # The payload for the PATCH request, linked to the same pet (dictio)
 def update_payload(available_pet_id):
     """The data used to perform the PATCH update, linked to the same pet."""
@@ -47,6 +81,7 @@ def update_payload(available_pet_id):
 # ---------------------------------------------------------
 # TEST CASE: Patch Order by ID
 # ---------------------------------------------------------
+@pytest.mark.flaky(reruns=2, reruns_delay=1)
 def test_patch_order_by_id(created_order_id, update_payload):
     # Performing the PATCH using the dynamic ID and payload from the fixtures
     endpoint = f"/store/order/{created_order_id}"

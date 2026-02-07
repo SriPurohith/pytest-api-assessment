@@ -26,10 +26,10 @@ patch_order_response = {
             "type": "string"
         },
         "id": {
-            "type": "string"
+            "type": "string", "minimum": 1 #positive ids
         },        
         "pet_id": {
-            "type": "integer"
+            "type": "integer", "minimum": 1 #positive pet ids
         },   
         "status": {
             "type": "string"

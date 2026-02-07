@@ -18,16 +18,15 @@ def patch_api_data(endpoint, data):
     response = requests.patch(f'{base_url}{endpoint}', json=data)
     return response
 
-'''
-import json
-
-def post_api_data(endpoint, data):
-    headers = {'Content-Type': 'application/json'}
-    # We use json.dumps() to ensure it's a clean string and pass it to 'data='
-    response = requests.post(
-        f'{base_url}{endpoint}', 
-        data=json.dumps(data), 
-        headers=headers
-    )
+# DELETE requests
+def delete_api_data(endpoint):
+    """
+    Sends a DELETE request to a specific endpoint.
+    """
+    url = f"{base_url}{endpoint}"
+    # Using the 'requests' library to send the DELETE verb
+    response = requests.delete(url)
+    
+    # Log the action for debugging (useful when running with -s)
+    print(f"DELETE Request sent to: {url} | Status Code: {response.status_code}")
     return response
-'''

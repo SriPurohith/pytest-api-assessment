@@ -2,6 +2,7 @@
 import json
 from jsonschema import validate
 from urllib import response
+import logging
 
 # Third-party
 import pytest
@@ -9,6 +10,9 @@ import pytest
 # Local modules
 import schemas
 import api_helpers
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 # ---------------------------------------------------------
 # TEST CASE: test pet schema
@@ -42,10 +46,10 @@ def test_find_by_status_200(status):
     response = api_helpers.get_api_data(test_endpoint, params)
     
     # Displaying the response details for debugging purposes
-    print(f"\n\nStatus: {response.status_code}", flush=True)
-    print(f"Header: {response.headers}", flush=True)
-    print(f"Json: {response.json()}", flush=True)
-    print(f"No of pets: {len(response.json())}", flush=True)
+    logger.info(f"\n\nStatus: {response.status_code}")
+    logger.info(f"Header: {response.headers}")
+    logger.info(f"Json: {response.json()}")
+    logger.info(f"No of pets: {len(response.json())}")
 
     # Validating Status Code
     assert response.status_code == 200
@@ -59,8 +63,6 @@ def test_find_by_status_200(status):
 
     # Verifying that the Schema of the first item is valid if the list not empty
     if len(response_data) > 0:
-        import schemas
-        from jsonschema import validate
         #Comparing with the defined schema in schemas.py
         validate(instance=response_data[0], schema=schemas.pet)
 
@@ -95,4 +97,4 @@ def test_get_by_id_404(pet_id):
         payload_data = payload.json()
         assert "not found" in payload_data.get("message", "").lower()
     else:
-        print(f"Verified: ID {pet_id} returned a 404 HTML page.")
+        logger.info(f"Verified: ID {pet_id} returned a 404 HTML page.")
