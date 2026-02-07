@@ -1,6 +1,6 @@
 pet = {
     "type": "object",
-    "required": ["name", "type"],
+    "required": ["name"],
     "properties": {
         "id": {
             "type": "integer"

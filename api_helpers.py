@@ -1,45 +1,45 @@
 import requests
-
-base_url = 'http://localhost:5000'
-
 import os
+import logging
 from dotenv import load_dotenv
 
 load_dotenv()
 
-# The order of priority: 
-# 1. Environment Variable (from GitHub Secrets or local shell)
-# 2. .env file
-# 3. Hardcoded default (last resort)
 BASE_URL = os.getenv("BASE_URL", "http://localhost:5000")
 
-# Pro-tip: Log the URL once during setup so you can see it in the Action logs
-import logging
 logger = logging.getLogger(__name__)
 logger.info(f"API Base URL: {BASE_URL}")
 
-
 # GET requests
-def get_api_data(endpoint, params = {}):
-    response = requests.get(f'{base_url}{endpoint}', params=params)
+def get_api_data(endpoint, params={}):
+    # 1. Strip any trailing comments or whitespace from BASE_URL
+    clean_base = BASE_URL.split('#')[0].strip().rstrip('/')
+    
+    # 2. Ensure the endpoint is clean (singular /pet)
+    clean_endpoint = endpoint.lstrip('/')
+    
+    # 3. Combine them
+    full_url = f"{clean_base}/{clean_endpoint}"
+    
+    response = requests.get(full_url, params=params)
     return response
 
 # POST requests
 def post_api_data(endpoint, data):
-    response = requests.post(f'{base_url}{endpoint}', json=data)
+    # Use uppercase BASE_URL here
+    response = requests.post(f'{BASE_URL}{endpoint}', json=data)
     return response
-
 
 # PATCH requests
 def patch_api_data(endpoint, data):
-    response = requests.patch(f'{base_url}{endpoint}', json=data)
+    # Use uppercase BASE_URL here
+    response = requests.patch(f'{BASE_URL}{endpoint}', json=data, timeout=10)
     return response
 
-# DELETE requests (added)
+# DELETE requests
 def delete_api_data(endpoint):
-    url = f"{base_url}{endpoint}"
+    # Use uppercase BASE_URL here
+    url = f"{BASE_URL}{endpoint}"
     response = requests.delete(url)
-    
-    # Log the action for debugging (useful when running with -s)
     print(f"DELETE Request sent to: {url} | Status Code: {response.status_code}")
     return response
