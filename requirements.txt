@@ -43,3 +43,7 @@ typing-inspection==0.4.2
 typing_extensions==4.15.0
 urllib3==2.5.0
 wcwidth==0.2.14
+pytest
+pytest-html
+jsonschema
+python-dotenv
