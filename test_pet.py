@@ -1,10 +1,14 @@
-#import api_helpers as api_modules
-import api_helpers   
-from urllib import response
+# Standard library
+import json
 from jsonschema import validate
+from urllib import response
+
+# Third-party
 import pytest
+
+# Local modules
 import schemas
-from hamcrest import assert_that, contains_string, is_
+import api_helpers
 
 # ---------------------------------------------------------
 # TEST CASE: test pet schema
@@ -38,10 +42,10 @@ def test_find_by_status_200(status):
     response = api_helpers.get_api_data(test_endpoint, params)
     
     # Displaying the response details for debugging purposes
-    print(f"\n\nSTATUS: {response.status_code}", flush=True)
-    print(f"HEADERS: {response.headers}", flush=True)
-    print(f"JSON: {response.json()}", flush=True)
-    print(f"NUMBER OF PETS: {len(response.json())}", flush=True)
+    print(f"\n\nStatus: {response.status_code}", flush=True)
+    print(f"Header: {response.headers}", flush=True)
+    print(f"Json: {response.json()}", flush=True)
+    print(f"No of pets: {len(response.json())}", flush=True)
 
     # Validating Status Code
     assert response.status_code == 200
